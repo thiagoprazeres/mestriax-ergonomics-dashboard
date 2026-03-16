@@ -11,13 +11,13 @@ export interface FilterOption {
   selector: 'app-filter-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+    <div class="mb-6 grid grid-cols-1 items-end gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-4">
       @for (filter of filters(); track filter.key) {
         <div class="flex flex-col gap-1">
           <label [for]="'filter-' + filter.key" class="text-xs font-medium text-gray-500">{{ filter.label }}</label>
           <select
             [id]="'filter-' + filter.key"
-            class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none sm:w-auto"
             [value]="filter.selected"
             (change)="onFilterChange(filter.key, $event)"
           >

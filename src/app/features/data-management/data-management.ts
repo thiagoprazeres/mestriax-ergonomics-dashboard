@@ -1,10 +1,9 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, viewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { CsvUpload } from '../../shared/ui/csv-upload';
-import { ClientService } from '../../shared/services/client.service';
 import { DataService } from '../../shared/services/data.service';
-import type { StoredAepRecord, StoredAbsenteeismRecord } from '../../shared/services/db.service';
+import { DbService, type StoredAepRecord, type StoredAbsenteeismRecord } from '../../shared/services/db.service';
+import { useDashboardContext } from '../../shared/utils/dashboard-context';
 import { AgGridAngular } from 'ag-grid-angular';
 import { AllCommunityModule, ModuleRegistry, type ColDef, type CellValueChangedEvent, type GridApi } from 'ag-grid-community';
 
@@ -19,7 +18,7 @@ type ActiveTab = 'aep' | 'absenteeism';
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
     <h1 class="mb-1 text-2xl font-bold text-gray-800">Gestão de Dados</h1>
-    <p class="mb-6 text-sm text-gray-400">Importar, editar e exportar dados — {{ unitName() }}</p>
+    <p class="mb-6 text-sm text-gray-400">Importar, editar e exportar dados — {{ ctx.unitName() }}</p>
 
     <!-- Tabs -->
     <div class="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1" role="tablist">
@@ -61,7 +60,7 @@ type ActiveTab = 'aep' | 'absenteeism';
     }
 
     <!-- Action Buttons -->
-    <div class="mb-4 flex flex-wrap items-center gap-3">
+    <div class="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
       <button type="button"
         class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
         (click)="addRow()"
@@ -74,17 +73,29 @@ type ActiveTab = 'aep' | 'absenteeism';
       >
         Exportar CSV
       </button>
+      <button type="button"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+        (click)="exportBackup()"
+      >
+        Backup JSON
+      </button>
+      <label
+        class="cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500"
+      >
+        Restaurar JSON
+        <input type="file" accept=".json" class="sr-only" (change)="importBackup($event)" />
+      </label>
       @if (selectedIds().length > 0) {
         <button type="button"
           class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none"
-          (click)="deleteSelected()"
+          (click)="confirmDeleteSelected()"
         >
           Excluir selecionados ({{ selectedIds().length }})
         </button>
       }
       <button type="button"
-        class="ml-auto rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none"
-        (click)="clearAll()"
+        class="col-span-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none sm:col-span-1 sm:ml-auto"
+        (click)="confirmClearAll()"
       >
         Limpar tudo
       </button>
@@ -93,7 +104,7 @@ type ActiveTab = 'aep' | 'absenteeism';
     <!-- Grid -->
     @if (activeTab() === 'aep') {
       <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <div class="h-[500px] w-full">
+        <div class="h-[350px] w-full sm:h-[500px]">
           <ag-grid-angular
             class="ag-theme-alpine h-full w-full"
             [rowData]="aepRows()"
@@ -112,7 +123,7 @@ type ActiveTab = 'aep' | 'absenteeism';
       </div>
     } @else {
       <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <div class="h-[500px] w-full">
+        <div class="h-[350px] w-full sm:h-[500px]">
           <ag-grid-angular
             class="ag-theme-alpine h-full w-full"
             [rowData]="absenteeismRows()"
@@ -139,22 +150,10 @@ type ActiveTab = 'aep' | 'absenteeism';
   `,
 })
 export class DataManagement implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly clientService = inject(ClientService);
   private readonly dataService = inject(DataService);
-
-  private readonly clientSlug = signal(this.route.snapshot.paramMap.get('clienteId') ?? '');
-  private readonly unitSlug = signal(this.route.snapshot.paramMap.get('unidadeId') ?? '');
-
-  readonly clientName = computed(() => this.clientService.getClient(this.clientSlug())?.name ?? this.clientSlug());
-  readonly unitName = computed(() => this.clientService.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
-
-  readonly breadcrumbs = computed(() => [
-    { label: 'Clientes', route: '/clientes' },
-    { label: this.clientName(), route: `/clientes/${this.clientSlug()}/unidades` },
-    { label: this.unitName(), route: `/clientes/${this.clientSlug()}/unidades/${this.unitSlug()}/dashboard` },
-    { label: 'Gestão de Dados' },
-  ]);
+  private readonly dbService = inject(DbService);
+  readonly ctx = useDashboardContext();
+  readonly breadcrumbs = this.ctx.breadcrumbs('Gestão de Dados');
 
   readonly activeTab = signal<ActiveTab>('aep');
   readonly statusMsg = signal('');
@@ -268,9 +267,15 @@ export class DataManagement implements OnInit {
     }
   }
 
-  async deleteSelected(): Promise<void> {
+  confirmDeleteSelected(): void {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
+    if (!confirm(`Deseja excluir ${ids.length} registro(s)? Esta ação não pode ser desfeita.`)) return;
+    this.deleteSelected();
+  }
+
+  private async deleteSelected(): Promise<void> {
+    const ids = this.selectedIds();
     if (this.activeTab() === 'aep') {
       for (const id of ids) await this.dataService.deleteAepRecord(id);
     } else {
@@ -280,7 +285,13 @@ export class DataManagement implements OnInit {
     this.showStatus(`${ids.length} registro(s) excluído(s).`);
   }
 
-  async clearAll(): Promise<void> {
+  confirmClearAll(): void {
+    const label = this.activeTab() === 'aep' ? 'AEP' : 'Absenteísmo';
+    if (!confirm(`Deseja remover TODOS os registros de ${label}? Esta ação não pode ser desfeita.`)) return;
+    this.clearAll();
+  }
+
+  private async clearAll(): Promise<void> {
     if (this.activeTab() === 'aep') {
       await this.dataService.clearAep();
       this.showStatus('Todos os registros AEP foram removidos.');
@@ -309,6 +320,49 @@ export class DataManagement implements OnInit {
     a.click();
     URL.revokeObjectURL(url);
     this.showStatus('CSV exportado com sucesso.');
+  }
+
+  // ── Backup / Restore ──
+
+  async exportBackup(): Promise<void> {
+    const aep = await this.dbService.getAllAep();
+    const absenteeism = await this.dbService.getAllAbsenteeism();
+    const payload = { version: 1, exportedAt: new Date().toISOString(), aep, absenteeism };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mestriax-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.showStatus('Backup JSON exportado com sucesso.');
+  }
+
+  async importBackup(event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (!confirm('Restaurar backup? Os dados atuais serão substituídos.')) {
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text) as { aep?: unknown[]; absenteeism?: unknown[] };
+      if (Array.isArray(payload.aep)) {
+        await this.dataService.clearAep();
+        await this.dbService.bulkAddAep(payload.aep as Parameters<typeof this.dbService.bulkAddAep>[0]);
+        await this.dataService.loadAep();
+      }
+      if (Array.isArray(payload.absenteeism)) {
+        await this.dataService.clearAbsenteeism();
+        await this.dbService.bulkAddAbsenteeism(payload.absenteeism as Parameters<typeof this.dbService.bulkAddAbsenteeism>[0]);
+        await this.dataService.loadAbsenteeism();
+      }
+      this.showStatus('Backup restaurado com sucesso.');
+    } catch {
+      this.showStatus('Erro ao restaurar backup. Verifique o formato do arquivo.');
+    }
+    (event.target as HTMLInputElement).value = '';
   }
 
   private showStatus(msg: string): void {

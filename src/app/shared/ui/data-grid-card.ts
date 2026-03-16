@@ -11,7 +11,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   template: `
     <div class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
       <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ title() }}</h3>
-      <div class="h-96 w-full">
+      <div class="h-72 w-full sm:h-96">
         <ag-grid-angular
           class="ag-theme-alpine h-full w-full"
           [rowData]="rowData()"

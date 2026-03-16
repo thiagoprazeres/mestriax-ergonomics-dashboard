@@ -1,13 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { KpiCard } from '../../shared/ui/kpi-card';
 import { ChartCard } from '../../shared/ui/chart-card';
 import { DataGridCard } from '../../shared/ui/data-grid-card';
 import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
 import { DataService } from '../../shared/services/data.service';
-import { ClientService } from '../../shared/services/client.service';
 import { AepRecord } from '../../shared/models/aep.model';
+import { useDashboardContext, toggleFilter } from '../../shared/utils/dashboard-context';
 import type { EChartsOption } from 'echarts';
 import type { ColDef } from 'ag-grid-community';
 
@@ -18,8 +17,20 @@ import type { ColDef } from 'ag-grid-community';
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
     <h1 class="mb-1 text-2xl font-bold text-gray-800">Diagnóstico Ergonômico</h1>
-    <p class="mb-6 text-sm text-gray-400">Análise Ergonômica Preliminar — {{ unitName() }}</p>
+    <p class="mb-6 text-sm text-gray-400">Análise Ergonômica Preliminar — {{ ctx.unitName() }}</p>
 
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <div class="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+        <span class="ml-3 text-sm text-gray-500">Carregando dados…</span>
+      </div>
+    } @else if (allData().length === 0) {
+      <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 py-20 text-center">
+        <span class="text-4xl">📋</span>
+        <p class="mt-3 text-sm font-medium text-gray-600">Nenhum dado AEP disponível</p>
+        <p class="mt-1 text-xs text-gray-400">Importe dados pela Gestão de Dados</p>
+      </div>
+    } @else {
     <app-filter-bar
       [filters]="filterOptions()"
       (filterChange)="onFilterChange($event)"
@@ -36,38 +47,28 @@ import type { ColDef } from 'ag-grid-community';
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Classificação de Risco" [options]="classifPieOptions()"
         [activeFilter]="filterClassificacao()" [clearFilter]="clearClassificacao"
-        (chartClick)="onPieClick($event, filterClassificacao)" />
+        (chartClick)="onChartClick($event, filterClassificacao)" />
       <app-chart-card title="Classificação por Cargo" [options]="classifCargoOptions()"
         [activeFilter]="filterCargo()" [clearFilter]="clearCargo"
-        (chartClick)="onBarClick($event, 'cargo', filterCargo)" />
+        (chartClick)="onChartClick($event, filterCargo)" />
     </div>
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Classificação por Setor" [options]="classifSetorOptions()"
         [activeFilter]="filterSetor()" [clearFilter]="clearSetor"
-        (chartClick)="onBarClick($event, 'setor', filterSetor)" />
+        (chartClick)="onChartClick($event, filterSetor)" />
       <app-chart-card title="Evolução do Risco Ergonômico" [options]="evolucaoRiscoOptions()" />
     </div>
 
     <app-data-grid-card title="Detalhamento AEP" [rowData]="filteredData()" [columnDefs]="columns" />
+    }
   `,
 })
 export class ErgonomicsDiagnosis implements OnInit {
   private readonly dataService = inject(DataService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly clientService = inject(ClientService);
+  readonly ctx = useDashboardContext();
+  readonly breadcrumbs = this.ctx.breadcrumbs('Diagnóstico Ergonômico');
 
-  private readonly clientSlug = signal(this.route.snapshot.paramMap.get('clienteId') ?? '');
-  private readonly unitSlug = signal(this.route.snapshot.paramMap.get('unidadeId') ?? '');
-
-  readonly clientName = computed(() => this.clientService.getClient(this.clientSlug())?.name ?? this.clientSlug());
-  readonly unitName = computed(() => this.clientService.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
-
-  readonly breadcrumbs = computed(() => [
-    { label: 'Clientes', route: '/clientes' },
-    { label: this.clientName(), route: `/clientes/${this.clientSlug()}/unidades` },
-    { label: this.unitName(), route: `/clientes/${this.clientSlug()}/unidades/${this.unitSlug()}/dashboard` },
-    { label: 'Diagnóstico Ergonômico' },
-  ]);
+  readonly loading = signal(true);
 
   readonly allData = signal<AepRecord[]>([]);
   readonly filterClassificacao = signal('');
@@ -222,7 +223,10 @@ export class ErgonomicsDiagnosis implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.dataService.loadAep().then((data) => this.allData.set(data));
+    this.dataService.loadAep().then((data) => {
+      this.allData.set(data);
+      this.loading.set(false);
+    });
   }
 
   onFilterChange(event: { key: string; value: string }): void {
@@ -239,16 +243,8 @@ export class ErgonomicsDiagnosis implements OnInit {
     this.filterGrupoRisco.set('');
   }
 
-  onPieClick(event: Record<string, unknown>, filterSignal: ReturnType<typeof signal<string>>): void {
-    const name = event['name'] as string | undefined;
-    if (!name) return;
-    filterSignal.set(filterSignal() === name ? '' : name);
-  }
-
-  onBarClick(event: Record<string, unknown>, _key: string, filterSignal: ReturnType<typeof signal<string>>): void {
-    const name = event['name'] as string | undefined;
-    if (!name) return;
-    filterSignal.set(filterSignal() === name ? '' : name);
+  onChartClick(event: Record<string, unknown>, filterSignal: ReturnType<typeof signal<string>>): void {
+    toggleFilter(filterSignal, event['name'] as string | undefined);
   }
 
   private countBy(data: AepRecord[], key: keyof AepRecord): { name: string; value: number }[] {

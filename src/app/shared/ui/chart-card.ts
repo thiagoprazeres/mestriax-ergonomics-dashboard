@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 
@@ -20,7 +20,7 @@ import type { EChartsOption } from 'echarts';
           </span>
         }
       </div>
-      <div echarts [options]="options()" (chartClick)="chartClick.emit($event)" class="h-72 w-full"></div>
+      <div echarts [options]="mergedOptions()" (chartClick)="chartClick.emit($event)" class="h-56 w-full sm:h-72"></div>
     </div>
   `,
 })
@@ -30,6 +30,22 @@ export class ChartCard {
   activeFilter = input<string>('');
   clearFilter = input<() => void>();
   chartClick = output<Record<string, unknown>>();
+
+  readonly mergedOptions = computed<EChartsOption>(() => ({
+    ...this.options(),
+    toolbox: {
+      show: true,
+      right: 0,
+      top: -6,
+      feature: {
+        saveAsImage: {
+          title: 'Salvar',
+          pixelRatio: 2,
+          backgroundColor: '#fff',
+        },
+      },
+    },
+  }));
 
   onClearFilter(): void {
     const fn = this.clearFilter();

@@ -50,12 +50,8 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ],
-            "allowedCommonJsDependencies": [
-              "papaparse"
-            ]
+            "styles": ["src/styles.css"],
+            "allowedCommonJsDependencies": ["papaparse"]
           },
           "configurations": {
             "production": {
@@ -71,7 +67,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
