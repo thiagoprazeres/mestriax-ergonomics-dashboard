@@ -7,6 +7,7 @@ export interface DashboardContext {
   clientSlug: WritableSignal<string>;
   unitSlug: WritableSignal<string>;
   clientName: ReturnType<typeof computed<string>>;
+  clientLogo: ReturnType<typeof computed<string>>;
   unitName: ReturnType<typeof computed<string>>;
   breadcrumbs: (lastLabel: string) => ReturnType<typeof computed<BreadcrumbItem[]>>;
 }
@@ -19,6 +20,7 @@ export function useDashboardContext(): DashboardContext {
   const unitSlug = signal(route.snapshot.paramMap.get('unidadeId') ?? '');
 
   const clientName = computed(() => clientService.getClient(clientSlug())?.name ?? clientSlug());
+  const clientLogo = computed(() => clientService.getClient(clientSlug())?.logoUrl ?? '');
   const unitName = computed(() => clientService.getUnit(clientSlug(), unitSlug())?.name ?? unitSlug());
 
   const breadcrumbs = (lastLabel: string) =>
@@ -29,7 +31,7 @@ export function useDashboardContext(): DashboardContext {
       { label: lastLabel },
     ]);
 
-  return { clientSlug, unitSlug, clientName, unitName, breadcrumbs };
+  return { clientSlug, unitSlug, clientName, clientLogo, unitName, breadcrumbs };
 }
 
 export function toggleFilter(filterSignal: WritableSignal<string>, name: string | undefined): void {

@@ -3,6 +3,7 @@ import { openDB, type IDBPDatabase } from 'idb';
 import { AepRecord } from '../models/aep.model';
 import { AbsenteeismRecord } from '../models/absenteeism.model';
 import { Client, Unit } from '../models/client.model';
+import type { User } from '../models/user.model';
 
 export interface StoredAepRecord extends AepRecord {
   id: number;
@@ -20,8 +21,12 @@ export interface StoredUnit extends Unit {
   id: number;
 }
 
+export interface StoredUser extends User {
+  id: number;
+}
+
 const DB_NAME = 'mestriax-ergo';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 @Injectable({ providedIn: 'root' })
 export class DbService {
@@ -38,6 +43,9 @@ export class DbService {
       }
       if (!db.objectStoreNames.contains('units')) {
         db.createObjectStore('units', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('users')) {
+        db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
       }
     },
   });
@@ -201,5 +209,41 @@ export class DbService {
       }
     }
     await tx.done;
+  }
+
+  // ── Users ────────────────────────────────────────
+
+  async getAllUsers(): Promise<StoredUser[]> {
+    const db = await this.dbPromise;
+    return db.getAll('users');
+  }
+
+  async countUsers(): Promise<number> {
+    const db = await this.dbPromise;
+    return db.count('users');
+  }
+
+  async addUser(record: Omit<StoredUser, 'id'>): Promise<number> {
+    const db = await this.dbPromise;
+    return db.add('users', record) as Promise<number>;
+  }
+
+  async bulkAddUsers(records: Omit<StoredUser, 'id'>[]): Promise<void> {
+    const db = await this.dbPromise;
+    const tx = db.transaction('users', 'readwrite');
+    for (const r of records) {
+      tx.store.add(r);
+    }
+    await tx.done;
+  }
+
+  async updateUser(record: StoredUser): Promise<void> {
+    const db = await this.dbPromise;
+    await db.put('users', record);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    const db = await this.dbPromise;
+    await db.delete('users', id);
   }
 }

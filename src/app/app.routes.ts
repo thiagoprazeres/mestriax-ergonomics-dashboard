@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -9,6 +10,7 @@ export const routes: Routes = [
   {
     path: 'clientes',
     loadComponent: () => import('./shared/layout/app-shell').then((m) => m.AppShell),
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -40,6 +42,37 @@ export const routes: Routes = [
       {
         path: ':clienteId/unidades/:unidadeId/dashboard/gestao-de-dados',
         loadComponent: () => import('./features/data-management/data-management').then((m) => m.DataManagement),
+      },
+    ],
+  },
+  {
+    path: 'configuracoes',
+    loadComponent: () => import('./shared/layout/app-shell').then((m) => m.AppShell),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./features/user-management/user-management').then((m) => m.UserManagement),
+      },
+    ],
+  },
+  {
+    path: 'compartilhar',
+    loadComponent: () => import('./features/share/share-view').then((m) => m.ShareView),
+    children: [
+      {
+        path: ':clienteId/:unidadeId/diagnostico-ergonomico',
+        loadComponent: () =>
+          import('./features/ergonomics-diagnosis/ergonomics-diagnosis').then((m) => m.ErgonomicsDiagnosis),
+      },
+      {
+        path: ':clienteId/:unidadeId/saude-ocupacional',
+        loadComponent: () =>
+          import('./features/occupational-health/occupational-health').then((m) => m.OccupationalHealth),
+      },
+      {
+        path: ':clienteId/:unidadeId/plano-de-acao',
+        loadComponent: () => import('./features/action-plan/action-plan').then((m) => m.ActionPlan),
       },
     ],
   },

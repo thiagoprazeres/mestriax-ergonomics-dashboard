@@ -17,17 +17,27 @@ type ActiveTab = 'aep' | 'absenteeism';
   imports: [Breadcrumb, CsvUpload, AgGridAngular],
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
-    <h1 class="mb-1 text-2xl font-bold text-gray-800">Gestão de Dados</h1>
-    <p class="mb-6 text-sm text-gray-400">Importar, editar e exportar dados — {{ ctx.unitName() }}</p>
+    <div class="mb-6 flex items-center gap-4">
+      @if (ctx.clientLogo()) {
+        <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-lg" />
+      }
+      <div>
+        <h1 class="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Gestão de Dados</h1>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Importar, editar e exportar dados — {{ ctx.unitName() }}</p>
+      </div>
+    </div>
 
     <!-- Tabs -->
-    <div class="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1" role="tablist">
+    <div class="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800" role="tablist">
       <button type="button" role="tab"
         class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition"
         [class.bg-white]="activeTab() === 'aep'"
+        [class.dark:bg-gray-700]="activeTab() === 'aep'"
         [class.shadow-sm]="activeTab() === 'aep'"
         [class.text-emerald-700]="activeTab() === 'aep'"
+        [class.dark:text-emerald-400]="activeTab() === 'aep'"
         [class.text-gray-500]="activeTab() !== 'aep'"
+        [class.dark:text-gray-400]="activeTab() !== 'aep'"
         [attr.aria-selected]="activeTab() === 'aep'"
         (click)="activeTab.set('aep')"
       >
@@ -36,9 +46,12 @@ type ActiveTab = 'aep' | 'absenteeism';
       <button type="button" role="tab"
         class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition"
         [class.bg-white]="activeTab() === 'absenteeism'"
+        [class.dark:bg-gray-700]="activeTab() === 'absenteeism'"
         [class.shadow-sm]="activeTab() === 'absenteeism'"
         [class.text-emerald-700]="activeTab() === 'absenteeism'"
+        [class.dark:text-emerald-400]="activeTab() === 'absenteeism'"
         [class.text-gray-500]="activeTab() !== 'absenteeism'"
+        [class.dark:text-gray-400]="activeTab() !== 'absenteeism'"
         [attr.aria-selected]="activeTab() === 'absenteeism'"
         (click)="activeTab.set('absenteeism')"
       >
@@ -68,33 +81,33 @@ type ActiveTab = 'aep' | 'absenteeism';
         + Novo registro
       </button>
       <button type="button"
-        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         (click)="exportCsv()"
       >
         Exportar CSV
       </button>
       <button type="button"
-        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         (click)="exportBackup()"
       >
         Backup JSON
       </button>
       <label
-        class="cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500"
+        class="cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
       >
         Restaurar JSON
         <input type="file" accept=".json" class="sr-only" (change)="importBackup($event)" />
       </label>
       @if (selectedIds().length > 0) {
         <button type="button"
-          class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none"
+          class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30"
           (click)="confirmDeleteSelected()"
         >
           Excluir selecionados ({{ selectedIds().length }})
         </button>
       }
       <button type="button"
-        class="col-span-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none sm:col-span-1 sm:ml-auto"
+        class="col-span-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition hover:bg-red-50 focus:ring-2 focus:ring-red-500 focus:outline-none sm:col-span-1 sm:ml-auto dark:border-red-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-900/30"
         (click)="confirmClearAll()"
       >
         Limpar tudo
@@ -103,7 +116,7 @@ type ActiveTab = 'aep' | 'absenteeism';
 
     <!-- Grid -->
     @if (activeTab() === 'aep') {
-      <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="h-[350px] w-full sm:h-[500px]">
           <ag-grid-angular
             class="ag-theme-alpine h-full w-full"
@@ -122,7 +135,7 @@ type ActiveTab = 'aep' | 'absenteeism';
         </div>
       </div>
     } @else {
-      <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="h-[350px] w-full sm:h-[500px]">
           <ag-grid-angular
             class="ag-theme-alpine h-full w-full"
@@ -143,7 +156,7 @@ type ActiveTab = 'aep' | 'absenteeism';
     }
 
     @if (statusMsg()) {
-      <div class="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700" role="status">
+      <div class="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" role="status">
         {{ statusMsg() }}
       </div>
     }

@@ -12,19 +12,19 @@ import type { StoredUnit } from '../../shared/services/db.service';
   imports: [Breadcrumb, FormsModule, LucideAngularModule],
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
-    <div class="mb-6 flex items-center justify-between">
-      <div class="flex items-center gap-4">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-3">
         @if (clientLogo()) {
           <img [src]="clientLogo()" [alt]="clientName()" width="40" height="40" class="rounded-lg" />
         }
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Unidades — {{ clientName() }}</h1>
-          <p class="text-sm text-gray-400">Selecione uma unidade</p>
+          <h1 class="text-xl font-bold text-gray-800 sm:text-2xl dark:text-gray-100">Unidades — {{ clientName() }}</h1>
+          <p class="text-sm text-gray-400 dark:text-gray-500">Selecione uma unidade</p>
         </div>
       </div>
       <button
         type="button"
-        class="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+        class="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none sm:w-auto"
         (click)="showAddForm.set(true)"
       >
         <lucide-icon [img]="PlusIcon" [size]="16" />
@@ -33,26 +33,26 @@ import type { StoredUnit } from '../../shared/services/db.service';
     </div>
 
     @if (showAddForm()) {
-      <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-        <h3 class="mb-3 text-sm font-semibold text-gray-700">Nova unidade</h3>
+      <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-700 dark:bg-emerald-900/20">
+        <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Nova unidade</h3>
         <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <div class="flex flex-1 flex-col gap-1" style="min-width: 160px">
-            <label for="new-name" class="text-xs font-medium text-gray-600">Nome</label>
+            <label for="new-name" class="text-xs font-medium text-gray-600 dark:text-gray-400">Nome</label>
             <input id="new-name" type="text" [(ngModel)]="newName"
               placeholder="Ex: REC3"
-              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
           </div>
           <div class="flex flex-1 flex-col gap-1" style="min-width: 160px">
-            <label for="new-slug" class="text-xs font-medium text-gray-600">Slug (URL)</label>
+            <label for="new-slug" class="text-xs font-medium text-gray-600 dark:text-gray-400">Slug (URL)</label>
             <input id="new-slug" type="text" [(ngModel)]="newSlug"
               placeholder="Ex: rec3"
-              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
           </div>
           <div class="flex flex-1 flex-col gap-1" style="min-width: 200px">
-            <label for="new-location" class="text-xs font-medium text-gray-600">Localização</label>
+            <label for="new-location" class="text-xs font-medium text-gray-600 dark:text-gray-400">Localização</label>
             <input id="new-location" type="text" [(ngModel)]="newLocation"
               placeholder="Ex: Recife - PE"
-              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+              class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
           </div>
           <div class="flex items-end gap-2">
             <button type="button"
@@ -63,7 +63,7 @@ import type { StoredUnit } from '../../shared/services/db.service';
               Salvar
             </button>
             <button type="button"
-              class="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+              class="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 focus:ring-2 focus:ring-gray-400 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               (click)="cancelAdd()">
               <lucide-icon [img]="XIcon" [size]="16" />
               Cancelar
@@ -75,13 +75,13 @@ import type { StoredUnit } from '../../shared/services/db.service';
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       @for (unit of units(); track unit.id) {
-        <div class="group relative flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition hover:border-primary-300 hover:shadow-md">
+        <div class="group relative flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition hover:border-primary-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-400">
           @if (editingId() === unit.id) {
             <div class="flex flex-col gap-2">
               <input type="text" [(ngModel)]="editName" placeholder="Nome"
-                class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+                class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
               <input type="text" [(ngModel)]="editLocation" placeholder="Localização"
-                class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none" />
+                class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100" />
               <div class="flex gap-2">
                 <button type="button"
                   class="flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700"
@@ -90,7 +90,7 @@ import type { StoredUnit } from '../../shared/services/db.service';
                   Salvar
                 </button>
                 <button type="button"
-                  class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
+                  class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                   (click)="editingId.set(0)">
                   <lucide-icon [img]="XIcon" [size]="14" />
                   Cancelar
@@ -99,15 +99,15 @@ import type { StoredUnit } from '../../shared/services/db.service';
             </div>
           } @else {
             <button type="button" class="flex flex-col gap-2 text-left" (click)="onSelect(unit.slug)">
-              <lucide-icon [img]="MapPinIcon" [size]="28" class="text-primary-500" />
-              <span class="text-base font-semibold text-gray-800 transition-colors group-hover:text-primary-500">{{ unit.name }}</span>
+              <lucide-icon [img]="MapPinIcon" [size]="28" class="text-primary-500 dark:text-primary-300" />
+              <span class="text-base font-semibold text-gray-800 transition-colors group-hover:text-primary-500 dark:text-gray-100">{{ unit.name }}</span>
               @if (unit.location) {
-                <span class="text-sm text-gray-400">{{ unit.location }}</span>
+                <span class="text-sm text-gray-400 dark:text-gray-500">{{ unit.location }}</span>
               }
             </button>
             <div class="absolute top-3 right-3 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               <button type="button" aria-label="Editar unidade"
-                class="rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                class="rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                 (click)="startEdit(unit); $event.stopPropagation()">
                 <lucide-icon [img]="PencilIcon" [size]="14" />
               </button>

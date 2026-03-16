@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
+import { LucideAngularModule, HeartPulse, Share2 } from 'lucide-angular';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { KpiCard } from '../../shared/ui/kpi-card';
 import { ChartCard } from '../../shared/ui/chart-card';
@@ -13,22 +14,37 @@ import type { ColDef } from 'ag-grid-community';
 @Component({
   selector: 'app-occupational-health',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Breadcrumb, KpiCard, ChartCard, DataGridCard, FilterBar],
+  imports: [Breadcrumb, KpiCard, ChartCard, DataGridCard, FilterBar, LucideAngularModule],
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
-    <h1 class="mb-1 text-2xl font-bold text-gray-800">Saúde Ocupacional</h1>
-    <p class="mb-6 text-sm text-gray-400">Absenteísmo Osteomuscular — {{ ctx.unitName() }}</p>
+    <div class="mb-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        @if (ctx.clientLogo()) {
+          <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-lg" />
+        }
+        <div>
+          <h1 class="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Saúde Ocupacional</h1>
+          <p class="text-sm text-gray-400 dark:text-gray-500">Absenteísmo Osteomuscular — {{ ctx.unitName() }}</p>
+        </div>
+      </div>
+      <button type="button"
+        class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        (click)="copyShareLink()">
+        <lucide-icon [img]="ShareIcon" [size]="16" />
+        <span class="hidden sm:inline">Compartilhar</span>
+      </button>
+    </div>
 
     @if (loading()) {
       <div class="flex items-center justify-center py-20">
         <div class="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
-        <span class="ml-3 text-sm text-gray-500">Carregando dados…</span>
+        <span class="ml-3 text-sm text-gray-500 dark:text-gray-400">Carregando dados…</span>
       </div>
     } @else if (allData().length === 0) {
-      <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 py-20 text-center">
-        <span class="text-4xl">🏥</span>
-        <p class="mt-3 text-sm font-medium text-gray-600">Nenhum dado de absenteísmo disponível</p>
-        <p class="mt-1 text-xs text-gray-400">Importe dados pela Gestão de Dados</p>
+      <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 py-20 text-center dark:border-gray-600">
+        <lucide-icon [img]="HeartPulseIcon" [size]="40" class="text-gray-300" />
+        <p class="mt-3 text-sm font-medium text-gray-600 dark:text-gray-300">Nenhum dado de absenteísmo disponível</p>
+        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Importe dados pela Gestão de Dados</p>
       </div>
     } @else {
     <app-filter-bar
@@ -63,6 +79,13 @@ export class OccupationalHealth implements OnInit {
   private readonly dataService = inject(DataService);
   readonly ctx = useDashboardContext();
   readonly breadcrumbs = this.ctx.breadcrumbs('Saúde Ocupacional');
+  readonly HeartPulseIcon = HeartPulse;
+  readonly ShareIcon = Share2;
+
+  copyShareLink(): void {
+    const url = `${location.origin}/compartilhar/${this.ctx.clientSlug()}/${this.ctx.unitSlug()}/saude-ocupacional`;
+    navigator.clipboard.writeText(url).then(() => alert('Link copiado!'));
+  }
 
   readonly loading = signal(true);
 

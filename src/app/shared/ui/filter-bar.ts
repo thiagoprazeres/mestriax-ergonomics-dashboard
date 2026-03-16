@@ -11,13 +11,13 @@ export interface FilterOption {
   selector: 'app-filter-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="mb-6 grid grid-cols-1 items-end gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-4">
+    <div class="mb-6 grid grid-cols-1 items-end gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-4 dark:border-gray-700 dark:bg-gray-800">
       @for (filter of filters(); track filter.key) {
         <div class="flex flex-col gap-1">
-          <label [for]="'filter-' + filter.key" class="text-xs font-medium text-gray-500">{{ filter.label }}</label>
+          <label [for]="'filter-' + filter.key" class="text-xs font-medium text-gray-500 dark:text-gray-400">{{ filter.label }}</label>
           <select
             [id]="'filter-' + filter.key"
-            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none sm:w-auto"
+            class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none sm:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
             [value]="filter.selected"
             (change)="onFilterChange(filter.key, $event)"
           >
@@ -30,7 +30,7 @@ export interface FilterOption {
       }
       <button
         type="button"
-        class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+        class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         (click)="clearAll.emit()"
       >
         Limpar filtros

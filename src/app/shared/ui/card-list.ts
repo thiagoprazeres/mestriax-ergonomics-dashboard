@@ -17,15 +17,15 @@ export interface CardItem {
       @for (card of items(); track card.id) {
         <button
           type="button"
-          class="group flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-6 text-left shadow-sm transition hover:border-primary-300 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:outline-none"
+          class="group flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-6 text-left shadow-sm transition hover:border-primary-300 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-400"
           (click)="cardClick.emit(card)"
         >
           @if (card.icon) {
-            <lucide-icon [img]="card.icon" [size]="28" class="text-primary-500" />
+            <lucide-icon [img]="card.icon" [size]="28" class="text-primary-500 dark:text-primary-300" />
           }
-          <span class="text-base font-semibold text-gray-800 group-hover:text-primary-500 transition-colors">{{ card.title }}</span>
+          <span class="text-base font-semibold text-gray-800 group-hover:text-primary-500 transition-colors dark:text-gray-100">{{ card.title }}</span>
           @if (card.subtitle) {
-            <span class="text-sm text-gray-400">{{ card.subtitle }}</span>
+            <span class="text-sm text-gray-400 dark:text-gray-500">{{ card.subtitle }}</span>
           }
         </button>
       }

@@ -11,9 +11,14 @@ import { useDashboardContext } from '../../shared/utils/dashboard-context';
   imports: [Breadcrumb, CardList],
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Dashboards — {{ ctx.unitName() }}</h1>
-      <p class="text-sm text-gray-400">Selecione um dashboard para visualizar</p>
+    <div class="mb-6 flex items-center gap-4">
+      @if (ctx.clientLogo()) {
+        <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-lg" />
+      }
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboards — {{ ctx.unitName() }}</h1>
+        <p class="text-sm text-gray-400 dark:text-gray-500">Selecione um dashboard para visualizar</p>
+      </div>
     </div>
     <app-card-list [items]="dashboardCards" (cardClick)="onSelect($event)" />
   `,

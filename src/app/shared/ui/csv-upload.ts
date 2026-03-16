@@ -1,22 +1,26 @@
 import { Component, ChangeDetectionStrategy, input, output, signal, ElementRef, viewChild } from '@angular/core';
+import { LucideAngularModule, FileText } from 'lucide-angular';
 
 @Component({
   selector: 'app-csv-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LucideAngularModule],
   template: `
     <div
       class="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 transition-colors"
       [class.border-gray-300]="!isDragging()"
       [class.bg-gray-50]="!isDragging()"
+      [class.dark:border-gray-600]="!isDragging()"
+      [class.dark:bg-gray-800]="!isDragging()"
       [class.border-emerald-400]="isDragging()"
       [class.bg-emerald-50]="isDragging()"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave()"
       (drop)="onDrop($event)"
     >
-      <div class="text-4xl text-gray-300">📄</div>
-      <p class="text-sm font-medium text-gray-600">{{ label() }}</p>
-      <p class="text-xs text-gray-400">Arraste um arquivo .csv ou clique para selecionar</p>
+      <lucide-icon [img]="FileTextIcon" [size]="40" class="text-gray-300" />
+      <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ label() }}</p>
+      <p class="text-xs text-gray-400 dark:text-gray-500">Arraste um arquivo .csv ou clique para selecionar</p>
       <button
         type="button"
         class="mt-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -42,6 +46,7 @@ import { Component, ChangeDetectionStrategy, input, output, signal, ElementRef, 
   `,
 })
 export class CsvUpload {
+  readonly FileTextIcon = FileText;
   label = input('Importar CSV');
   accept = input('.csv');
 

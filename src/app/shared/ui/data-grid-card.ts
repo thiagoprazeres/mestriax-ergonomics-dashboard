@@ -9,8 +9,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AgGridAngular],
   template: `
-    <div class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ title() }}</h3>
+    <div class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">{{ title() }}</h3>
       <div class="h-72 w-full sm:h-96">
         <ag-grid-angular
           class="ag-theme-alpine h-full w-full"

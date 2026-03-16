@@ -2,6 +2,8 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary-50: #e8f5f1;
   --color-primary-100: #c5e8dd;
@@ -32,9 +34,81 @@ html, body {
   @apply h-full bg-gray-50 text-gray-800 antialiased;
 }
 
+.dark html, .dark body, html.dark, html.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* ── AG Grid light ── */
 :root {
   --ag-header-background-color: #f8fafc;
   --ag-odd-row-background-color: #ffffff;
   --ag-row-hover-color: #e8f5f1;
   --ag-alpine-active-color: #176b5b;
+}
+
+/* ── AG Grid dark ── */
+.dark {
+  --ag-background-color: #1f2937;
+  --ag-header-background-color: #111827;
+  --ag-odd-row-background-color: #1f2937;
+  --ag-row-hover-color: #374151;
+  --ag-alpine-active-color: #4da882;
+  --ag-foreground-color: #e5e7eb;
+  --ag-border-color: #374151;
+  --ag-header-foreground-color: #d1d5db;
+  --ag-secondary-foreground-color: #9ca3af;
+  --ag-row-border-color: #374151;
+  --ag-control-panel-background-color: #1f2937;
+  --ag-selected-row-background-color: #374151;
+  --ag-range-selection-background-color: rgba(77, 168, 130, 0.2);
+}
+
+/* ── Print styles ── */
+@media print {
+  app-top-bar,
+  app-breadcrumb,
+  app-filter-bar,
+  app-csv-upload,
+  .no-print,
+  button,
+  select,
+  [role="tablist"] {
+    display: none !important;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt !important;
+  }
+
+  .dark {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+    box-shadow: none !important;
+  }
+
+  .rounded-xl {
+    border-radius: 4px !important;
+  }
+
+  div[echarts] {
+    break-inside: avoid;
+  }
+
+  ag-grid-angular {
+    break-inside: avoid;
+  }
+
+  h1 {
+    font-size: 16pt !important;
+    margin-bottom: 4pt !important;
+  }
 }

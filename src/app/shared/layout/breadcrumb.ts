@@ -11,12 +11,12 @@ export interface BreadcrumbItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
-    <nav aria-label="Breadcrumb" class="mb-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm text-gray-500">
+    <nav aria-label="Breadcrumb" class="mb-4 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
       @for (item of items(); track item.label; let last = $last) {
         @if (item.route && !last) {
-          <a [routerLink]="item.route" class="hover:text-primary-500 transition-colors">{{ item.label }}</a>
+          <a [routerLink]="item.route" class="hover:text-primary-500 transition-colors dark:hover:text-primary-300">{{ item.label }}</a>
         } @else {
-          <span [class]="last ? 'font-medium text-gray-800' : ''">{{ item.label }}</span>
+          <span [class]="last ? 'font-medium text-gray-800 dark:text-gray-100' : ''">{{ item.label }}</span>
         }
         @if (!last) {
           <span aria-hidden="true" class="mx-1">/</span>

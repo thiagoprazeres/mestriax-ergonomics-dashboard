@@ -8,7 +8,7 @@ import { ClientService } from '../services/client.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, TopBar],
   template: `
-    <div class="flex min-h-screen flex-col">
+    <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
       <app-top-bar />
       <main class="flex-1 p-4 sm:p-6">
         <router-outlet />
