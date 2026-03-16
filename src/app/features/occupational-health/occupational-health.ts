@@ -8,7 +8,7 @@ import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
 import { CsvService } from '../../shared/services/csv.service';
 import { MockDataService } from '../../shared/services/mock-data.service';
 import { AbsenteeismRecord } from '../../shared/models/absenteeism.model';
-import type { AgChartOptions } from 'ag-charts-community';
+import type { EChartsOption } from 'echarts';
 import type { ColDef } from 'ag-grid-community';
 
 @Component({
@@ -34,9 +34,11 @@ import type { ColDef } from 'ag-grid-community';
 
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Dias Perdidos por Setor" [options]="diasSetorOptions()"
-        [activeFilter]="filterSetor()" [clearFilter]="clearSetor" />
+        [activeFilter]="filterSetor()" [clearFilter]="clearSetor"
+        (chartClick)="onChartClick($event, filterSetor)" />
       <app-chart-card title="Dias Perdidos por Cargo" [options]="diasCargoOptions()"
-        [activeFilter]="filterCargo()" [clearFilter]="clearCargo" />
+        [activeFilter]="filterCargo()" [clearFilter]="clearCargo"
+        (chartClick)="onChartClick($event, filterCargo)" />
     </div>
     <div class="mb-6">
       <app-chart-card title="Evolução Mensal de Absenteísmo" [options]="evolucaoOptions()" />
@@ -105,41 +107,37 @@ export class OccupationalHealth implements OnInit {
     return max || '—';
   });
 
-  readonly diasSetorOptions = computed(() => {
+  readonly diasSetorOptions = computed<EChartsOption>(() => {
     const map = new Map<string, number>();
     for (const r of this.filteredData()) {
       if (r.setor) map.set(r.setor, (map.get(r.setor) ?? 0) + r.diasPerdidos);
     }
-    const data = [...map.entries()].map(([setor, dias]) => ({ setor, dias }));
+    const entries = [...map.entries()].sort((a, b) => b[1] - a[1]);
     return {
-      data,
-      series: [{ type: 'bar' as const, xKey: 'setor', yKey: 'dias', yName: 'Dias Perdidos', fill: '#176b5b' }],
-      axes: {
-        bottom: { type: 'category' as const },
-        left: { type: 'number' as const },
-      },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterSetor, (e['datum'] as Record<string, string>)?.['setor']) },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: entries.map(([s]) => s), axisLabel: { rotate: 30 } },
+      yAxis: { type: 'value' },
+      series: [{ type: 'bar', data: entries.map(([, d]) => d), itemStyle: { color: '#176b5b', borderRadius: [4, 4, 0, 0] } }],
+    };
   });
 
-  readonly diasCargoOptions = computed(() => {
+  readonly diasCargoOptions = computed<EChartsOption>(() => {
     const map = new Map<string, number>();
     for (const r of this.filteredData()) {
       if (r.cargo) map.set(r.cargo, (map.get(r.cargo) ?? 0) + r.diasPerdidos);
     }
-    const data = [...map.entries()].map(([cargo, dias]) => ({ cargo, dias }));
+    const entries = [...map.entries()].sort((a, b) => a[1] - b[1]);
     return {
-      data,
-      series: [{ type: 'bar' as const, xKey: 'cargo', yKey: 'dias', yName: 'Dias Perdidos', fill: '#78c890' }],
-      axes: {
-        left: { type: 'category' as const },
-        bottom: { type: 'number' as const },
-      },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterCargo, (e['datum'] as Record<string, string>)?.['cargo']) },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      yAxis: { type: 'category', data: entries.map(([c]) => c) },
+      xAxis: { type: 'value' },
+      series: [{ type: 'bar', data: entries.map(([, d]) => d), itemStyle: { color: '#78c890', borderRadius: [0, 4, 4, 0] } }],
+    };
   });
 
-  readonly evolucaoOptions = computed(() => {
+  readonly evolucaoOptions = computed<EChartsOption>(() => {
     const map = new Map<string, number>();
     for (const r of this.filteredData()) {
       if (!r.dataInicio) continue;
@@ -149,17 +147,18 @@ export class OccupationalHealth implements OnInit {
         map.set(monthKey, (map.get(monthKey) ?? 0) + r.diasPerdidos);
       }
     }
-    const data = [...map.entries()]
-      .map(([mes, dias]) => ({ mes, dias }))
-      .sort((a, b) => a.mes.localeCompare(b.mes));
+    const sorted = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
     return {
-      data,
-      series: [{ type: 'line' as const, xKey: 'mes', yKey: 'dias', yName: 'Dias Perdidos', stroke: '#176b5b', marker: { fill: '#176b5b', stroke: '#176b5b' } }],
-      axes: {
-        bottom: { type: 'category' as const },
-        left: { type: 'number' as const },
-      },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'axis' },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: sorted.map(([m]) => m), boundaryGap: false },
+      yAxis: { type: 'value' },
+      series: [{
+        type: 'line', data: sorted.map(([, d]) => d), smooth: true,
+        itemStyle: { color: '#176b5b' }, areaStyle: { opacity: 0.15 },
+        symbol: 'circle', symbolSize: 8,
+      }],
+    };
   });
 
   readonly columns: ColDef[] = [
@@ -188,8 +187,9 @@ export class OccupationalHealth implements OnInit {
     this.filterCid.set('');
   }
 
-  private toggleFilter(filterSignal: ReturnType<typeof signal<string>>, value: string | undefined): void {
-    if (!value) return;
-    filterSignal.set(filterSignal() === value ? '' : value);
+  onChartClick(event: Record<string, unknown>, filterSignal: ReturnType<typeof signal<string>>): void {
+    const name = event['name'] as string | undefined;
+    if (!name) return;
+    filterSignal.set(filterSignal() === name ? '' : name);
   }
 }

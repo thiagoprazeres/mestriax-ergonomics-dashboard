@@ -8,7 +8,7 @@ import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
 import { CsvService } from '../../shared/services/csv.service';
 import { MockDataService } from '../../shared/services/mock-data.service';
 import { AepRecord } from '../../shared/models/aep.model';
-import type { AgChartOptions } from 'ag-charts-community';
+import type { EChartsOption } from 'echarts';
 import type { ColDef } from 'ag-grid-community';
 
 @Component({
@@ -35,13 +35,16 @@ import type { ColDef } from 'ag-grid-community';
 
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Classificação de Risco" [options]="classifPieOptions()"
-        [activeFilter]="filterClassificacao()" [clearFilter]="clearClassificacao" />
+        [activeFilter]="filterClassificacao()" [clearFilter]="clearClassificacao"
+        (chartClick)="onPieClick($event, filterClassificacao)" />
       <app-chart-card title="Classificação por Cargo" [options]="classifCargoOptions()"
-        [activeFilter]="filterCargo()" [clearFilter]="clearCargo" />
+        [activeFilter]="filterCargo()" [clearFilter]="clearCargo"
+        (chartClick)="onBarClick($event, 'cargo', filterCargo)" />
     </div>
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Classificação por Setor" [options]="classifSetorOptions()"
-        [activeFilter]="filterSetor()" [clearFilter]="clearSetor" />
+        [activeFilter]="filterSetor()" [clearFilter]="clearSetor"
+        (chartClick)="onBarClick($event, 'setor', filterSetor)" />
       <app-chart-card title="Evolução do Risco Ergonômico" [options]="evolucaoRiscoOptions()" />
     </div>
 
@@ -104,65 +107,80 @@ export class ErgonomicsDiagnosis implements OnInit {
   readonly riscoAlto = computed(() => this.filteredData().filter((r) => r.classificacao === 'Alto' || r.classificacao === 'Muito Alta').length);
   readonly planosAbertos = computed(() => this.filteredData().filter((r) => r.planoAcao && r.status !== 'Concluído').length);
 
-  private readonly COLORS = ['#176b5b', '#78c890', '#f59e0b', '#ef4444', '#6366f1'];
+  private readonly COLORS: Record<string, string> = {
+    'Muito Alta': '#ef4444', 'Alto': '#f59e0b', 'Moderado': '#78c890', 'Baixo': '#176b5b',
+  };
 
-  readonly classifPieOptions = computed(() => {
+  readonly classifPieOptions = computed<EChartsOption>(() => {
     const counts = this.countBy(this.filteredData(), 'classificacao');
     return {
-      data: counts,
-      series: [{ type: 'pie' as const, angleKey: 'count', legendItemKey: 'label', fills: this.COLORS }],
-      legend: { position: 'bottom' as const },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterClassificacao, (e['datum'] as Record<string, string>)?.['label']) },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      legend: { bottom: 0, type: 'scroll' },
+      color: counts.map((c) => this.COLORS[c.name] ?? '#6366f1'),
+      series: [{
+        type: 'pie', radius: ['40%', '70%'], center: ['50%', '45%'],
+        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false }, emphasis: { label: { show: true, fontWeight: 'bold' } },
+        data: counts,
+      }],
+    };
   });
 
-  readonly classifCargoOptions = computed(() => {
+  readonly classifCargoOptions = computed<EChartsOption>(() => {
     const data = this.filteredData();
     const cargos = [...new Set(data.map((r) => r.cargo).filter(Boolean))];
-    const barData = cargos.map((cargo) => {
+    const grouped = cargos.map((cargo) => {
       const rows = data.filter((r) => r.cargo === cargo);
-      return { cargo, alto: rows.filter((r) => r.classificacao === 'Alto' || r.classificacao === 'Muito Alta').length, moderado: rows.filter((r) => r.classificacao === 'Moderado').length, baixo: rows.filter((r) => r.classificacao === 'Baixo' || r.classificacao === 'Muito Baixa').length };
+      return {
+        cargo,
+        alto: rows.filter((r) => r.classificacao === 'Alto' || r.classificacao === 'Muito Alta').length,
+        moderado: rows.filter((r) => r.classificacao === 'Moderado').length,
+        baixo: rows.filter((r) => r.classificacao === 'Baixo' || r.classificacao === 'Muito Baixa').length,
+      };
     }).sort((a, b) => (b.alto + b.moderado + b.baixo) - (a.alto + a.moderado + a.baixo)).slice(0, 10);
+    const labels = grouped.map((g) => g.cargo);
     return {
-      data: barData,
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { bottom: 0, type: 'scroll' },
+      grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+      yAxis: { type: 'category', data: labels },
+      xAxis: { type: 'value' },
       series: [
-        { type: 'bar' as const, xKey: 'cargo', yKey: 'alto', yName: 'Alto', fill: '#ef4444' },
-        { type: 'bar' as const, xKey: 'cargo', yKey: 'moderado', yName: 'Moderado', fill: '#f59e0b' },
-        { type: 'bar' as const, xKey: 'cargo', yKey: 'baixo', yName: 'Baixo', fill: '#78c890' },
+        { name: 'Alto', type: 'bar', stack: 'total', data: grouped.map((g) => g.alto), itemStyle: { color: '#ef4444' } },
+        { name: 'Moderado', type: 'bar', stack: 'total', data: grouped.map((g) => g.moderado), itemStyle: { color: '#f59e0b' } },
+        { name: 'Baixo', type: 'bar', stack: 'total', data: grouped.map((g) => g.baixo), itemStyle: { color: '#78c890' } },
       ],
-      axes: {
-        left: { type: 'category' as const },
-        bottom: { type: 'number' as const },
-      },
-      legend: { position: 'bottom' as const },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterCargo, (e['datum'] as Record<string, string>)?.['cargo']) },
-    } as unknown as AgChartOptions;
+    };
   });
 
-  readonly classifSetorOptions = computed(() => {
+  readonly classifSetorOptions = computed<EChartsOption>(() => {
     const data = this.filteredData();
     const setores = [...new Set(data.map((r) => r.setor).filter(Boolean))];
-    const barData = setores.map((setor) => {
+    const grouped = setores.map((setor) => {
       const rows = data.filter((r) => r.setor === setor);
-      return { setor, alto: rows.filter((r) => r.classificacao === 'Alto' || r.classificacao === 'Muito Alta').length, moderado: rows.filter((r) => r.classificacao === 'Moderado').length, baixo: rows.filter((r) => r.classificacao === 'Baixo' || r.classificacao === 'Muito Baixa').length };
+      return {
+        setor,
+        alto: rows.filter((r) => r.classificacao === 'Alto' || r.classificacao === 'Muito Alta').length,
+        moderado: rows.filter((r) => r.classificacao === 'Moderado').length,
+        baixo: rows.filter((r) => r.classificacao === 'Baixo' || r.classificacao === 'Muito Baixa').length,
+      };
     });
+    const labels = grouped.map((g) => g.setor);
     return {
-      data: barData,
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { bottom: 0, type: 'scroll' },
+      grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+      yAxis: { type: 'category', data: labels },
+      xAxis: { type: 'value' },
       series: [
-        { type: 'bar' as const, xKey: 'setor', yKey: 'alto', yName: 'Alto', fill: '#ef4444' },
-        { type: 'bar' as const, xKey: 'setor', yKey: 'moderado', yName: 'Moderado', fill: '#f59e0b' },
-        { type: 'bar' as const, xKey: 'setor', yKey: 'baixo', yName: 'Baixo', fill: '#78c890' },
+        { name: 'Alto', type: 'bar', stack: 'total', data: grouped.map((g) => g.alto), itemStyle: { color: '#ef4444' } },
+        { name: 'Moderado', type: 'bar', stack: 'total', data: grouped.map((g) => g.moderado), itemStyle: { color: '#f59e0b' } },
+        { name: 'Baixo', type: 'bar', stack: 'total', data: grouped.map((g) => g.baixo), itemStyle: { color: '#78c890' } },
       ],
-      axes: {
-        left: { type: 'category' as const },
-        bottom: { type: 'number' as const },
-      },
-      legend: { position: 'bottom' as const },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterSetor, (e['datum'] as Record<string, string>)?.['setor']) },
-    } as unknown as AgChartOptions;
+    };
   });
 
-  readonly evolucaoRiscoOptions = computed(() => {
+  readonly evolucaoRiscoOptions = computed<EChartsOption>(() => {
     const data = this.filteredData();
     const monthMap = new Map<string, { baixa: number; moderada: number; alta: number }>();
     for (const r of data) {
@@ -177,22 +195,20 @@ export class ErgonomicsDiagnosis implements OnInit {
       else if (cls === 'Alto' || cls === 'Muito Alta') entry.alta++;
       monthMap.set(key, entry);
     }
-    const chartData = [...monthMap.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([mes, v]) => ({ mes, ...v }));
+    const sorted = [...monthMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    const months = sorted.map(([m]) => m);
     return {
-      data: chartData,
+      tooltip: { trigger: 'axis' },
+      legend: { bottom: 0, type: 'scroll' },
+      grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
+      xAxis: { type: 'category', data: months, boundaryGap: false },
+      yAxis: { type: 'value' },
       series: [
-        { type: 'line' as const, xKey: 'mes', yKey: 'baixa', yName: 'Baixa', stroke: '#78c890', marker: { fill: '#78c890', stroke: '#78c890' } },
-        { type: 'line' as const, xKey: 'mes', yKey: 'moderada', yName: 'Moderada', stroke: '#f59e0b', marker: { fill: '#f59e0b', stroke: '#f59e0b' } },
-        { type: 'line' as const, xKey: 'mes', yKey: 'alta', yName: 'Alta', stroke: '#ef4444', marker: { fill: '#ef4444', stroke: '#ef4444' } },
+        { name: 'Baixa', type: 'line', data: sorted.map(([, v]) => v.baixa), smooth: true, itemStyle: { color: '#78c890' }, areaStyle: { opacity: 0.1 } },
+        { name: 'Moderada', type: 'line', data: sorted.map(([, v]) => v.moderada), smooth: true, itemStyle: { color: '#f59e0b' }, areaStyle: { opacity: 0.1 } },
+        { name: 'Alta', type: 'line', data: sorted.map(([, v]) => v.alta), smooth: true, itemStyle: { color: '#ef4444' }, areaStyle: { opacity: 0.1 } },
       ],
-      axes: {
-        bottom: { type: 'category' as const },
-        left: { type: 'number' as const },
-      },
-      legend: { position: 'bottom' as const },
-    } as unknown as AgChartOptions;
+    };
   });
 
   readonly columns: ColDef[] = [
@@ -223,17 +239,24 @@ export class ErgonomicsDiagnosis implements OnInit {
     this.filterGrupoRisco.set('');
   }
 
-  private toggleFilter(filterSignal: ReturnType<typeof signal<string>>, value: string | undefined): void {
-    if (!value) return;
-    filterSignal.set(filterSignal() === value ? '' : value);
+  onPieClick(event: Record<string, unknown>, filterSignal: ReturnType<typeof signal<string>>): void {
+    const name = event['name'] as string | undefined;
+    if (!name) return;
+    filterSignal.set(filterSignal() === name ? '' : name);
   }
 
-  private countBy(data: AepRecord[], key: keyof AepRecord): { label: string; count: number }[] {
+  onBarClick(event: Record<string, unknown>, _key: string, filterSignal: ReturnType<typeof signal<string>>): void {
+    const name = event['name'] as string | undefined;
+    if (!name) return;
+    filterSignal.set(filterSignal() === name ? '' : name);
+  }
+
+  private countBy(data: AepRecord[], key: keyof AepRecord): { name: string; value: number }[] {
     const map = new Map<string, number>();
     for (const row of data) {
       const val = String(row[key] ?? '').trim();
       if (val) map.set(val, (map.get(val) ?? 0) + 1);
     }
-    return [...map.entries()].map(([label, count]) => ({ label, count }));
+    return [...map.entries()].map(([name, value]) => ({ name, value }));
   }
 }

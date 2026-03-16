@@ -1,16 +1,17 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { ModuleRegistry as ChartsModuleRegistry, AllCommunityModule as AllChartsModule } from 'ag-charts-community';
-import { ModuleRegistry as GridModuleRegistry, AllCommunityModule as AllGridModule } from 'ag-grid-community';
+import { provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts';
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 
 import { routes } from './app.routes';
 
-ChartsModuleRegistry.registerModules([AllChartsModule]);
-GridModuleRegistry.registerModules([AllGridModule]);
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
+    provideRouter(routes),
+    provideEchartsCore({ echarts }),
   ]
 };

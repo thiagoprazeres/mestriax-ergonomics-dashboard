@@ -8,7 +8,7 @@ import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
 import { CsvService } from '../../shared/services/csv.service';
 import { MockDataService } from '../../shared/services/mock-data.service';
 import { AepRecord } from '../../shared/models/aep.model';
-import type { AgChartOptions } from 'ag-charts-community';
+import type { EChartsOption } from 'echarts';
 import type { ColDef } from 'ag-grid-community';
 
 interface ActionPlanRow {
@@ -42,9 +42,11 @@ interface ActionPlanRow {
 
     <div class="mb-6 grid gap-4 lg:grid-cols-2">
       <app-chart-card title="Status dos Planos" [options]="statusPieOptions()"
-        [activeFilter]="filterStatus()" [clearFilter]="clearStatus" />
+        [activeFilter]="filterStatus()" [clearFilter]="clearStatus"
+        (chartClick)="onChartClick($event, filterStatus)" />
       <app-chart-card title="Planos por Setor" [options]="planoSetorOptions()"
-        [activeFilter]="filterSetor()" [clearFilter]="clearSetor" />
+        [activeFilter]="filterSetor()" [clearFilter]="clearSetor"
+        (chartClick)="onChartClick($event, filterSetor)" />
     </div>
 
     <app-data-grid-card title="Detalhamento Plano de Ação" [rowData]="filteredPlans()" [columnDefs]="columns" />
@@ -108,35 +110,42 @@ export class ActionPlan implements OnInit {
   readonly planosConcluidos = computed(() => this.filteredPlans().filter((r) => r.status === 'Concluído').length);
   readonly planosAtrasados = computed(() => this.filteredPlans().filter((r) => r.status === 'Atrasado').length);
 
-  readonly statusPieOptions = computed(() => {
+  private readonly STATUS_COLORS: Record<string, string> = {
+    'Concluído': '#78c890', 'Aberto': '#f59e0b', 'Atrasado': '#ef4444',
+  };
+
+  readonly statusPieOptions = computed<EChartsOption>(() => {
     const map = new Map<string, number>();
     for (const r of this.filteredPlans()) {
       map.set(r.status, (map.get(r.status) ?? 0) + 1);
     }
-    const data = [...map.entries()].map(([label, count]) => ({ label, count }));
+    const data = [...map.entries()].map(([name, value]) => ({ name, value }));
     return {
-      data,
-      series: [{ type: 'pie' as const, angleKey: 'count', legendItemKey: 'label', fills: ['#78c890', '#f59e0b', '#ef4444', '#6366f1'] }],
-      legend: { position: 'bottom' as const },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterStatus, (e['datum'] as Record<string, string>)?.['label']) },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      legend: { bottom: 0, type: 'scroll' },
+      color: data.map((d) => this.STATUS_COLORS[d.name] ?? '#6366f1'),
+      series: [{
+        type: 'pie', radius: ['40%', '70%'], center: ['50%', '45%'],
+        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false }, emphasis: { label: { show: true, fontWeight: 'bold' } },
+        data,
+      }],
+    };
   });
 
-  readonly planoSetorOptions = computed(() => {
+  readonly planoSetorOptions = computed<EChartsOption>(() => {
     const map = new Map<string, number>();
     for (const r of this.filteredPlans()) {
       if (r.setor) map.set(r.setor, (map.get(r.setor) ?? 0) + 1);
     }
-    const data = [...map.entries()].map(([setor, total]) => ({ setor, total }));
+    const entries = [...map.entries()].sort((a, b) => b[1] - a[1]);
     return {
-      data,
-      series: [{ type: 'bar' as const, xKey: 'setor', yKey: 'total', yName: 'Planos', fill: '#176b5b' }],
-      axes: {
-        bottom: { type: 'category' as const },
-        left: { type: 'number' as const },
-      },
-      listeners: { seriesNodeClick: (e: Record<string, unknown>) => this.toggleFilter(this.filterSetor, (e['datum'] as Record<string, string>)?.['setor']) },
-    } as unknown as AgChartOptions;
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: entries.map(([s]) => s), axisLabel: { rotate: 30 } },
+      yAxis: { type: 'value' },
+      series: [{ type: 'bar', data: entries.map(([, v]) => v), itemStyle: { color: '#176b5b', borderRadius: [4, 4, 0, 0] } }],
+    };
   });
 
   readonly columns: ColDef[] = [
@@ -161,9 +170,10 @@ export class ActionPlan implements OnInit {
     this.filterStatus.set('');
   }
 
-  private toggleFilter(filterSignal: ReturnType<typeof signal<string>>, value: string | undefined): void {
-    if (!value) return;
-    filterSignal.set(filterSignal() === value ? '' : value);
+  onChartClick(event: Record<string, unknown>, filterSignal: ReturnType<typeof signal<string>>): void {
+    const name = event['name'] as string | undefined;
+    if (!name) return;
+    filterSignal.set(filterSignal() === name ? '' : name);
   }
 
   private deriveStatus(r: AepRecord): string {
