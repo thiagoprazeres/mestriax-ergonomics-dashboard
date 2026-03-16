@@ -1,11 +1,10 @@
 export interface Client {
-  id: string;
   name: string;
   slug: string;
+  logoUrl?: string;
 }
 
 export interface Unit {
-  id: string;
   name: string;
   slug: string;
   clientSlug: string;

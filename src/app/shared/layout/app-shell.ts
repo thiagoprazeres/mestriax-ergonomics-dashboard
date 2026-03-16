@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TopBar } from './top-bar';
+import { ClientService } from '../services/client.service';
 
 @Component({
   selector: 'app-shell',
@@ -15,4 +16,11 @@ import { TopBar } from './top-bar';
     </div>
   `,
 })
-export class AppShell {}
+export class AppShell implements OnInit {
+  private readonly clientService = inject(ClientService);
+
+  ngOnInit(): void {
+    this.clientService.loadClients();
+    this.clientService.loadUnits();
+  }
+}

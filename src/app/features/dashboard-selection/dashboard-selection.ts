@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Activity, HeartPulse, ClipboardList, Database } from 'lucide-angular';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { CardList, CardItem } from '../../shared/ui/card-list';
-import { MockDataService } from '../../shared/services/mock-data.service';
+import { ClientService } from '../../shared/services/client.service';
 
 @Component({
   selector: 'app-dashboard-selection',
@@ -21,13 +21,13 @@ import { MockDataService } from '../../shared/services/mock-data.service';
 export class DashboardSelection {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly mockData = inject(MockDataService);
+  private readonly clientService = inject(ClientService);
 
   private readonly clientSlug = signal(this.route.snapshot.paramMap.get('clienteId') ?? '');
   private readonly unitSlug = signal(this.route.snapshot.paramMap.get('unidadeId') ?? '');
 
-  readonly clientName = computed(() => this.mockData.getClient(this.clientSlug())?.name ?? this.clientSlug());
-  readonly unitName = computed(() => this.mockData.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
+  readonly clientName = computed(() => this.clientService.getClient(this.clientSlug())?.name ?? this.clientSlug());
+  readonly unitName = computed(() => this.clientService.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
 
   readonly breadcrumbs = computed(() => [
     { label: 'Clientes', route: '/clientes' },

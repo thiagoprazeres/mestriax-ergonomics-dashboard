@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <rect width="80" height="80" rx="16" fill="#232F3E"/>
+  <text x="40" y="35" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">amazon</text>
+  <path d="M22 45 C30 52, 50 52, 58 45" stroke="#FF9900" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M52 43 L58 45 L55 50" stroke="#FF9900" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

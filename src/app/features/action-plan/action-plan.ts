@@ -6,7 +6,7 @@ import { ChartCard } from '../../shared/ui/chart-card';
 import { DataGridCard } from '../../shared/ui/data-grid-card';
 import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
 import { DataService } from '../../shared/services/data.service';
-import { MockDataService } from '../../shared/services/mock-data.service';
+import { ClientService } from '../../shared/services/client.service';
 import { AepRecord } from '../../shared/models/aep.model';
 import type { EChartsOption } from 'echarts';
 import type { ColDef } from 'ag-grid-community';
@@ -55,13 +55,13 @@ interface ActionPlanRow {
 export class ActionPlan implements OnInit {
   private readonly dataService = inject(DataService);
   private readonly route = inject(ActivatedRoute);
-  private readonly mockData = inject(MockDataService);
+  private readonly clientService = inject(ClientService);
 
   private readonly clientSlug = signal(this.route.snapshot.paramMap.get('clienteId') ?? '');
   private readonly unitSlug = signal(this.route.snapshot.paramMap.get('unidadeId') ?? '');
 
-  readonly clientName = computed(() => this.mockData.getClient(this.clientSlug())?.name ?? this.clientSlug());
-  readonly unitName = computed(() => this.mockData.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
+  readonly clientName = computed(() => this.clientService.getClient(this.clientSlug())?.name ?? this.clientSlug());
+  readonly unitName = computed(() => this.clientService.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
 
   readonly breadcrumbs = computed(() => [
     { label: 'Clientes', route: '/clientes' },

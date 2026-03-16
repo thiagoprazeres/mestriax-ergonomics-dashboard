@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, v
 import { ActivatedRoute } from '@angular/router';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { CsvUpload } from '../../shared/ui/csv-upload';
-import { MockDataService } from '../../shared/services/mock-data.service';
+import { ClientService } from '../../shared/services/client.service';
 import { DataService } from '../../shared/services/data.service';
 import type { StoredAepRecord, StoredAbsenteeismRecord } from '../../shared/services/db.service';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -140,14 +140,14 @@ type ActiveTab = 'aep' | 'absenteeism';
 })
 export class DataManagement implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly mockData = inject(MockDataService);
+  private readonly clientService = inject(ClientService);
   private readonly dataService = inject(DataService);
 
   private readonly clientSlug = signal(this.route.snapshot.paramMap.get('clienteId') ?? '');
   private readonly unitSlug = signal(this.route.snapshot.paramMap.get('unidadeId') ?? '');
 
-  readonly clientName = computed(() => this.mockData.getClient(this.clientSlug())?.name ?? this.clientSlug());
-  readonly unitName = computed(() => this.mockData.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
+  readonly clientName = computed(() => this.clientService.getClient(this.clientSlug())?.name ?? this.clientSlug());
+  readonly unitName = computed(() => this.clientService.getUnit(this.clientSlug(), this.unitSlug())?.name ?? this.unitSlug());
 
   readonly breadcrumbs = computed(() => [
     { label: 'Clientes', route: '/clientes' },

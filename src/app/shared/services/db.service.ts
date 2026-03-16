@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { openDB, type IDBPDatabase } from 'idb';
 import { AepRecord } from '../models/aep.model';
 import { AbsenteeismRecord } from '../models/absenteeism.model';
+import { Client, Unit } from '../models/client.model';
 
 export interface StoredAepRecord extends AepRecord {
   id: number;
@@ -11,8 +12,16 @@ export interface StoredAbsenteeismRecord extends AbsenteeismRecord {
   id: number;
 }
 
+export interface StoredClient extends Client {
+  id: number;
+}
+
+export interface StoredUnit extends Unit {
+  id: number;
+}
+
 const DB_NAME = 'mestriax-ergo';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 @Injectable({ providedIn: 'root' })
 export class DbService {
@@ -23,6 +32,12 @@ export class DbService {
       }
       if (!db.objectStoreNames.contains('absenteeism')) {
         db.createObjectStore('absenteeism', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('clients')) {
+        db.createObjectStore('clients', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('units')) {
+        db.createObjectStore('units', { keyPath: 'id', autoIncrement: true });
       }
     },
   });
@@ -107,5 +122,84 @@ export class DbService {
   async clearAbsenteeism(): Promise<void> {
     const db = await this.dbPromise;
     await db.clear('absenteeism');
+  }
+
+  // ── Clients ─────────────────────────────────────────
+
+  async getAllClients(): Promise<StoredClient[]> {
+    const db = await this.dbPromise;
+    return db.getAll('clients');
+  }
+
+  async countClients(): Promise<number> {
+    const db = await this.dbPromise;
+    return db.count('clients');
+  }
+
+  async addClient(record: Omit<StoredClient, 'id'>): Promise<number> {
+    const db = await this.dbPromise;
+    return db.add('clients', record) as Promise<number>;
+  }
+
+  async bulkAddClients(records: Omit<StoredClient, 'id'>[]): Promise<void> {
+    const db = await this.dbPromise;
+    const tx = db.transaction('clients', 'readwrite');
+    for (const r of records) {
+      tx.store.add(r);
+    }
+    await tx.done;
+  }
+
+  async updateClient(record: StoredClient): Promise<void> {
+    const db = await this.dbPromise;
+    await db.put('clients', record);
+  }
+
+  async deleteClient(id: number): Promise<void> {
+    const db = await this.dbPromise;
+    await db.delete('clients', id);
+  }
+
+  // ── Units ───────────────────────────────────────────
+
+  async getAllUnits(): Promise<StoredUnit[]> {
+    const db = await this.dbPromise;
+    return db.getAll('units');
+  }
+
+  async addUnit(record: Omit<StoredUnit, 'id'>): Promise<number> {
+    const db = await this.dbPromise;
+    return db.add('units', record) as Promise<number>;
+  }
+
+  async bulkAddUnits(records: Omit<StoredUnit, 'id'>[]): Promise<void> {
+    const db = await this.dbPromise;
+    const tx = db.transaction('units', 'readwrite');
+    for (const r of records) {
+      tx.store.add(r);
+    }
+    await tx.done;
+  }
+
+  async updateUnit(record: StoredUnit): Promise<void> {
+    const db = await this.dbPromise;
+    await db.put('units', record);
+  }
+
+  async deleteUnit(id: number): Promise<void> {
+    const db = await this.dbPromise;
+    await db.delete('units', id);
+  }
+
+  async deleteUnitsByClient(clientSlug: string): Promise<void> {
+    const db = await this.dbPromise;
+    const all = await db.getAll('units') as StoredUnit[];
+    const tx = db.transaction('units', 'readwrite');
+    for (const u of all) {
+      if (u.clientSlug === clientSlug) {
+        tx.store.delete(u.id);
+      }
+    }
+    await tx.done;
   }
 }
