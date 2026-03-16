@@ -95,7 +95,7 @@ import type { StoredClient } from '../../shared/services/db.service';
           } @else {
             <button type="button" class="flex items-center gap-4 text-left" (click)="onSelect(client.slug)">
               @if (client.logoUrl) {
-                <img [src]="client.logoUrl" [alt]="client.name" width="48" height="48" class="rounded-lg" />
+                <img [src]="client.logoUrl" [alt]="client.name" width="48" height="48" class="rounded-xs" />
               } @else {
                 <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
                   <lucide-icon [img]="BuildingIcon" [size]="24" class="text-primary-500 dark:text-primary-300" />

@@ -3,7 +3,7 @@ import { DbService, type StoredClient, type StoredUnit } from './db.service';
 import type { Client, Unit } from '../models/client.model';
 
 const SEED_CLIENTS: Client[] = [
-  { name: 'Amazon Brasil', slug: 'amazon-brasil', logoUrl: 'https://cdn.brandfetch.io/idawOgYOsG/theme/dark/logo.svg' },
+  { name: 'Amazon Brasil', slug: 'amazon-brasil', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg' },
   { name: 'Mercado Livre', slug: 'mercado-livre', logoUrl: 'https://cdn.brandfetch.io/id0m1a9oJ8/theme/dark/logo.svg' },
   { name: 'Magazine Luiza', slug: 'magazine-luiza', logoUrl: 'https://cdn.brandfetch.io/idSdnzDAdG/theme/dark/logo.svg' },
   { name: 'Shopee', slug: 'shopee', logoUrl: 'https://cdn.brandfetch.io/idubNy-9U5/theme/dark/logo.svg' },

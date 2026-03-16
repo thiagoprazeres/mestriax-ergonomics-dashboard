@@ -2,14 +2,16 @@ import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/cor
 import { RouterOutlet } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
 import { ClientService } from '../../shared/services/client.service';
+import { OfflineBanner } from '../../shared/ui/offline-banner';
 import { COMPANY } from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-share-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, NgOptimizedImage],
+  imports: [RouterOutlet, NgOptimizedImage, OfflineBanner],
   template: `
     <div class="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+      <app-offline-banner />
       <header class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm sm:h-16 sm:px-6 dark:border-gray-700 dark:bg-gray-800">
         <div class="flex items-center gap-2 sm:gap-3">
           <img ngSrc="mestriax.png" alt="Mestriax" width="36" height="36" priority class="rounded-full" />
