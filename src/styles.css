@@ -1,3 +1,40 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+@theme {
+  --color-primary-50: #e8f5f1;
+  --color-primary-100: #c5e8dd;
+  --color-primary-200: #9ed9c6;
+  --color-primary-300: #78c890;
+  --color-primary-400: #4da882;
+  --color-primary-500: #176b5b;
+  --color-primary-600: #135e50;
+  --color-primary-700: #0f4f43;
+  --color-primary-800: #0b3f36;
+  --color-primary-900: #072f28;
+
+  --color-accent-50: #eefbf1;
+  --color-accent-100: #d4f5db;
+  --color-accent-200: #a8eab7;
+  --color-accent-300: #78c890;
+  --color-accent-400: #5cb87a;
+  --color-accent-500: #3da864;
+  --color-accent-600: #2d8a4f;
+  --color-accent-700: #226c3e;
+  --color-accent-800: #1a5530;
+  --color-accent-900: #123d23;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+html, body {
+  @apply h-full bg-gray-50 text-gray-800 antialiased;
+}
+
+:root {
+  --ag-header-background-color: #f8fafc;
+  --ag-odd-row-background-color: #ffffff;
+  --ag-row-hover-color: #e8f5f1;
+  --ag-alpine-active-color: #176b5b;
+}
