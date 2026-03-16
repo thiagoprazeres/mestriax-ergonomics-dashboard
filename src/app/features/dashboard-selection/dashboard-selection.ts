@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Activity, HeartPulse, ClipboardList } from 'lucide-angular';
+import { Activity, HeartPulse, ClipboardList, Database } from 'lucide-angular';
 import { Breadcrumb } from '../../shared/layout/breadcrumb';
 import { CardList, CardItem } from '../../shared/ui/card-list';
 import { MockDataService } from '../../shared/services/mock-data.service';
@@ -40,6 +40,7 @@ export class DashboardSelection {
     { id: 'diagnostico-ergonomico', title: 'Diagnóstico Ergonômico', subtitle: 'Análise Ergonômica Preliminar', icon: Activity },
     { id: 'saude-ocupacional', title: 'Saúde Ocupacional', subtitle: 'Absenteísmo Osteomuscular', icon: HeartPulse },
     { id: 'plano-de-acao', title: 'Gestão do Plano de Ação', subtitle: 'Acompanhamento de ações', icon: ClipboardList },
+    { id: 'gestao-de-dados', title: 'Gestão de Dados', subtitle: 'Importar, editar e exportar CSV', icon: Database },
   ];
 
   onSelect(card: CardItem): void {

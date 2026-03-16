@@ -37,6 +37,10 @@ export const routes: Routes = [
         path: ':clienteId/unidades/:unidadeId/dashboard/plano-de-acao',
         loadComponent: () => import('./features/action-plan/action-plan').then((m) => m.ActionPlan),
       },
+      {
+        path: ':clienteId/unidades/:unidadeId/dashboard/gestao-de-dados',
+        loadComponent: () => import('./features/data-management/data-management').then((m) => m.DataManagement),
+      },
     ],
   },
   { path: '**', redirectTo: 'login' },

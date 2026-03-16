@@ -5,7 +5,7 @@ import { KpiCard } from '../../shared/ui/kpi-card';
 import { ChartCard } from '../../shared/ui/chart-card';
 import { DataGridCard } from '../../shared/ui/data-grid-card';
 import { FilterBar, FilterOption } from '../../shared/ui/filter-bar';
-import { CsvService } from '../../shared/services/csv.service';
+import { DataService } from '../../shared/services/data.service';
 import { MockDataService } from '../../shared/services/mock-data.service';
 import { AepRecord } from '../../shared/models/aep.model';
 import type { EChartsOption } from 'echarts';
@@ -53,7 +53,7 @@ interface ActionPlanRow {
   `,
 })
 export class ActionPlan implements OnInit {
-  private readonly csv = inject(CsvService);
+  private readonly dataService = inject(DataService);
   private readonly route = inject(ActivatedRoute);
   private readonly mockData = inject(MockDataService);
 
@@ -157,7 +157,7 @@ export class ActionPlan implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.csv.loadAep().then((data) => this.allData.set(data));
+    this.dataService.loadAep().then((data) => this.allData.set(data));
   }
 
   onFilterChange(event: { key: string; value: string }): void {
