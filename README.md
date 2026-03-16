@@ -1,267 +1,222 @@
-Mestriax Ergonomics Dashboard
+# Mestriax Ergonomics Dashboard
 
 Plataforma de dashboards analíticos para gestão de risco ergonômico, saúde ocupacional e acompanhamento de planos de ação.
 
-O projeto foi concebido para transformar planilhas operacionais e avaliações ergonômicas em insights visuais e acionáveis, permitindo que consultorias e empresas tomem decisões baseadas em dados.
+O projeto transforma planilhas operacionais e avaliações ergonômicas em insights visuais e acionáveis, permitindo que consultorias e empresas tomem decisões baseadas em dados.
 
-Inicialmente desenvolvido como protótipo funcional para consultoria ergonômica, o sistema evolui para uma arquitetura escalável de análise ocupacional.
+---
 
-⸻
+## Visão do Produto
 
-Visão do Produto
+O sistema transforma dados de:
 
-O sistema permite transformar dados como:
-	•	AEP (Análise Ergonômica Preliminar)
-	•	fatores de risco
-	•	grupos de risco
-	•	absenteísmo osteomuscular
-	•	planos de ação
+- **AEP** (Análise Ergonômica Preliminar)
+- **Fatores e grupos de risco**
+- **Absenteísmo osteomuscular**
+- **Planos de ação**
 
-em dashboards interativos para análise gerencial.
+em dashboards interativos com gráficos clicáveis, filtros cruzados e tabelas editáveis.
 
-O objetivo é permitir responder perguntas como:
-	•	Quais setores possuem maior risco ergonômico?
-	•	Quais cargos concentram maior exposição?
-	•	Quantos dias foram perdidos por afastamentos?
-	•	Quais planos de ação estão atrasados?
-	•	O risco ergonômico está diminuindo ao longo do tempo?
+**Perguntas que o sistema responde:**
 
-⸻
+- Quais setores possuem maior risco ergonômico?
+- Quais cargos concentram maior exposição?
+- Quantos dias foram perdidos por afastamentos?
+- Quais planos de ação estão atrasados?
+- O risco ergonômico está diminuindo ao longo do tempo?
 
-Dashboards
+---
 
-A plataforma é composta por três dashboards principais, cada um com uma tela dedicada.
+## Dashboards
 
-Diagnóstico Ergonômico
+### Diagnóstico Ergonômico
 
 Análise da exposição ergonômica na organização.
 
-Principais visualizações:
-	•	distribuição de risco ergonômico
-	•	classificação por setor
-	•	classificação por cargo
-	•	evolução temporal do risco
-	•	detalhamento analítico de riscos
+**Gráficos (Apache ECharts):**
+- Donut — distribuição de risco ergonômico
+- Barras empilhadas — classificação por setor e por cargo
+- Linha com área — evolução temporal do risco
 
-Indicadores:
-	•	empregados avaliados
-	•	empregados expostos
-	•	risco médio da unidade
-	•	número de planos de ação
+**KPIs:** total de avaliações, setores avaliados, risco alto, planos abertos
 
-Tabela analítica:
+**Tabela:** Setor · Cargo · Classificação · Grupo de Risco · Subgrupo · Plano de Ação · Status
 
-| Setor | Cargo | Classificação | Grupo de risco | Subgrupo | % exposição | Plano de ação | Status |
+### Saúde Ocupacional
 
-⸻
+Monitoramento de afastamentos e absenteísmo.
 
-Saúde Ocupacional
+**Gráficos:**
+- Barras verticais — dias perdidos por setor
+- Barras horizontais — dias perdidos por cargo
+- Linha com área — evolução mensal de absenteísmo
 
-Monitoramento de afastamentos e absenteísmo ocupacional.
+**KPIs:** dias perdidos, casos registrados, setor mais afetado
 
-Principais métricas:
-	•	dias perdidos
-	•	número de afastamentos
-	•	média de dias por afastamento
-	•	principais diagnósticos (CID)
+**Tabela:** Matrícula · Cargo · Setor · CID · Data Início · Retorno · Dias Perdidos
 
-Visualizações:
-	•	dias perdidos por setor
-	•	dias perdidos por cargo
-	•	distribuição de CID
-	•	evolução temporal de afastamentos
+### Gestão do Plano de Ação
 
-Tabela analítica:
+Acompanhamento das ações corretivas.
 
-| Matrícula | Cargo | Setor | CID | Afastamento | Retorno | Dias perdidos |
+**Gráficos:**
+- Donut — status dos planos (Aberto / Concluído / Atrasado)
+- Barras verticais — planos por setor
 
-⸻
+**KPIs:** planos abertos, concluídos, atrasados
 
-Gestão do Plano de Ação
+**Tabela:** Ação · Setor · Responsável · Prazo · Status
 
-Acompanhamento das ações corretivas relacionadas aos riscos identificados.
+### Gestão de Dados
 
-Indicadores:
-	•	planos iniciados
-	•	planos concluídos
-	•	planos próximos do prazo
-	•	planos vencidos
+Página dedicada para importação, edição e exportação de dados.
 
-Visualizações:
-	•	status dos planos de ação
-	•	planos por prioridade
-	•	evolução dos planos ao longo do tempo
+- **Import CSV** — drag-and-drop com validação de formato e tamanho
+- **CRUD completo** — adicionar, editar inline (AG Grid), excluir registros
+- **Export CSV** — download dos dados atuais
+- **Persistência local** — dados armazenados no IndexedDB do navegador
+- **Fallback automático** — na primeira visita, carrega dados de exemplo dos CSVs estáticos
 
-Tabela analítica:
+---
 
-| Plano | Setor | Cargo | Responsável | Prazo | Prioridade | Status |
+## Cross-Filtering (Filtros Cruzados)
 
-⸻
+Todos os gráficos são interativos — clicar em uma fatia de pizza, barra ou ponto do gráfico aplica automaticamente um filtro que atualiza:
 
-Arquitetura do Sistema
+- Os demais gráficos
+- Os KPIs
+- A tabela de dados
 
-O projeto separa duas camadas principais:
+Um chip de filtro ativo aparece no card do gráfico com botão ✕ para limpar.
 
-Camada de Dashboard
+---
 
-Responsável por:
-	•	visualização
-	•	análise
-	•	interação com dados
-	•	filtros analíticos
+## Stack Tecnológica
 
-Tecnologias:
-	•	Angular
-	•	Tailwind
-	•	AG Charts
-	•	AG Grid
-	•	Lucide Angular
+| Camada | Tecnologias |
+|--------|-------------|
+| **Framework** | Angular 21 (standalone components, signals, strict mode) |
+| **Estilização** | Tailwind CSS 4 |
+| **Gráficos** | Apache ECharts + ngx-echarts |
+| **Tabelas** | AG Grid Community |
+| **Ícones** | Lucide Angular |
+| **Parsing CSV** | Papa Parse |
+| **Persistência** | IndexedDB (via `idb`) |
+| **Arquitetura** | Feature-based, sem backend |
 
-⸻
+---
 
-Camada de Dados e Domínio
+## Estrutura do Projeto
 
-Responsável por:
-	•	ingestão de dados
-	•	normalização
-	•	modelagem de domínio
-	•	preparação analítica
+```
+src/app/
+├── features/
+│   ├── auth/login.ts
+│   ├── clients/clients.ts
+│   ├── units/units.ts
+│   ├── dashboard-selection/dashboard-selection.ts
+│   ├── ergonomics-diagnosis/ergonomics-diagnosis.ts
+│   ├── occupational-health/occupational-health.ts
+│   ├── action-plan/action-plan.ts
+│   └── data-management/data-management.ts
+├── shared/
+│   ├── layout/
+│   │   ├── app-shell.ts
+│   │   ├── top-bar.ts
+│   │   └── breadcrumb.ts
+│   ├── ui/
+│   │   ├── chart-card.ts
+│   │   ├── data-grid-card.ts
+│   │   ├── kpi-card.ts
+│   │   ├── filter-bar.ts
+│   │   ├── card-list.ts
+│   │   └── csv-upload.ts
+│   ├── services/
+│   │   ├── data.service.ts      ← camada de dados (IndexedDB + fallback CSV)
+│   │   ├── db.service.ts        ← wrapper IndexedDB (idb)
+│   │   ├── csv.service.ts       ← parser CSV + interpolação de dados
+│   │   └── mock-data.service.ts ← dados mock de clientes/unidades
+│   └── models/
+│       ├── aep.model.ts
+│       ├── absenteeism.model.ts
+│       ├── employee.model.ts
+│       └── client.model.ts
+└── public/assets/data/           ← CSVs estáticos de exemplo
+```
 
-Componentes:
-	•	DTOs de importação
-	•	normalizers
-	•	value objects
-	•	aggregates
+---
 
-Os dados atualmente são ingeridos a partir de arquivos CSV estruturados, podendo futuramente integrar com:
-	•	bancos de dados
-	•	APIs corporativas
-	•	ferramentas de BI
+## Fluxo de Dados
 
-⸻
+```
+┌─────────────────┐     ┌──────────────┐     ┌───────────┐
+│  Upload CSV      │────▶│  Papa Parse   │────▶│ IndexedDB │
+│  (drag & drop)   │     │  (validação)  │     │   (idb)   │
+└─────────────────┘     └──────────────┘     └─────┬─────┘
+                                                    │
+┌─────────────────┐                                 │
+│  CSV estático    │─── fallback (1ª visita) ───────┘
+│  /assets/data/   │                                 │
+└─────────────────┘                                 ▼
+                                              ┌───────────┐
+                                              │DataService │
+                                              │ (signals)  │
+                                              └─────┬─────┘
+                                                    │
+                         ┌──────────────────────────┼──────────────┐
+                         ▼                          ▼              ▼
+                    ┌─────────┐              ┌──────────┐   ┌──────────┐
+                    │ Gráficos │              │   KPIs   │   │ AG Grid  │
+                    │ ECharts  │◀── cross ──▶│          │   │ (edição) │
+                    └─────────┘   filtering  └──────────┘   └──────────┘
+```
 
-Stack Tecnológica
+---
 
-Frontend
-	•	Angular
-	•	TypeScript (strict mode)
-	•	Tailwind CSS
+## Inicialização
 
-Data Visualization
-	•	AG Charts
-	•	AG Grid
-
-Data Ingestion
-	•	Papa Parse
-
-Arquitetura
-	•	Feature-Based Architecture
-	•	Domain modeling com aggregates e value objects
-
-⸻
-
-Estrutura do Projeto
-
-src/
-
-features
- └ dashboard
-     ├ ergonomics-diagnosis
-     ├ occupational-health
-     └ action-plan-management
-
-shared
- ├ value-objects
- ├ normalizers
- ├ dto
- └ utilities
-
-data
- ├ csv-import
- └ datasets
-
-
-⸻
-
-Fluxo de Dados
-
-CSV datasets
-      ↓
-Papa Parse
-      ↓
-DTOs de Importação
-      ↓
-Normalizers
-      ↓
-Value Objects
-      ↓
-Aggregates
-      ↓
-Dashboards
-
-
-⸻
-
-Inicialização do Projeto
-
-Criar o projeto Angular:
-
-ng new mestriax-ergonomics-dashboard \
---style=tailwind \
---ssr=false \
---ai-config=windsurf \
---skip-install \
---strict=true
-
-Instalar dependências:
-
+```bash
+# Instalar dependências
 npm install
 
-Bibliotecas principais:
-
-npm install papaparse
-npm install ag-grid-angular ag-grid-community
-npm install ag-charts-angular ag-charts-community
-npm install -D @types/papaparse
-
-Executar o projeto:
-
+# Executar em modo de desenvolvimento
 ng serve
 
+# Build de produção
+ng build
+```
 
-⸻
+### Dependências principais
 
-Roadmap
+```bash
+npm install echarts ngx-echarts           # gráficos
+npm install ag-grid-angular ag-grid-community  # tabelas
+npm install papaparse idb                 # CSV + IndexedDB
+npm install lucide-angular                # ícones
+npm install -D @types/papaparse
+```
 
-Curto prazo
-	•	ingestão completa dos datasets CSV
-	•	filtros cruzados entre gráficos
-	•	integração total AG Grid + AG Charts
-	•	normalização dos datasets
+---
 
-Médio prazo
-	•	exportação de relatórios
-	•	correlação risco × afastamentos
-	•	geração automática de insights
+## Roadmap
 
-Longo prazo
-	•	integração com Power BI
-	•	integração com Looker Studio
-	•	suporte multiempresa
-	•	plataforma SaaS de ergonomia
+### ✅ Concluído
+- Dashboards analíticos (diagnóstico, saúde ocupacional, plano de ação)
+- Gráficos interativos com Apache ECharts (donut, barras, linhas)
+- Cross-filtering — clicar em gráfico filtra todos os outros
+- Gestão de dados — import CSV, CRUD com IndexedDB, export CSV
+- Interpolação temporal de dados para demonstração
+- Navegação multi-cliente / multi-unidade
 
-⸻
+### 🔜 Próximos passos
+- Correlação risco × afastamentos
+- Geração automática de insights
+- Supabase (multi-usuário, auth, sync em tempo real)
+- Exportação de relatórios PDF
+- Suporte multiempresa (SaaS)
 
-Objetivo do Projeto
+---
 
-Este projeto demonstra como consultorias ergonômicas podem evoluir de planilhas operacionais para plataformas analíticas completas, permitindo:
-	•	maior escala
-	•	consistência de dados
-	•	acompanhamento contínuo de risco
-	•	gestão estruturada de ações corretivas
-
-⸻
-
-Licença
+## Licença
 
 MIT License
