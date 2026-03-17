@@ -15,7 +15,7 @@ export interface Company {
 }
 
 export const COMPANY: Company = {
-  name: 'Mestriax Consultoria',
+  name: 'Gestão de Risco Ergonômico',
   slogan: 'Cuidamos de pessoas, otimizamos processos, geramos valor.',
   phone: '(81) 98617-1458',
   email: 'mestriax@gmail.com',

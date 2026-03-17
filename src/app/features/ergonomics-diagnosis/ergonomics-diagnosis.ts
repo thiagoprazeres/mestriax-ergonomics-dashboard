@@ -17,11 +17,11 @@ import type { ColDef } from 'ag-grid-community';
   imports: [Breadcrumb, KpiCard, ChartCard, DataGridCard, FilterBar, LucideAngularModule],
   template: `
     <app-breadcrumb [items]="breadcrumbs()" />
+        @if (ctx.clientLogo()) {
+          <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-sm" />
+        }
     <div class="mb-6 flex items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        @if (ctx.clientLogo()) {
-          <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-lg" />
-        }
         <div>
           <h1 class="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Diagnóstico Ergonômico</h1>
           <p class="text-sm text-gray-400 dark:text-gray-500">Análise Ergonômica Preliminar — {{ ctx.unitName() }}</p>

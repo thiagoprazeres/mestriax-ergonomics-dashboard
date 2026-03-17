@@ -15,7 +15,7 @@ import type { StoredUnit } from '../../shared/services/db.service';
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex items-center gap-3">
         @if (clientLogo()) {
-          <img [src]="clientLogo()" [alt]="clientName()" width="40" height="40" class="rounded-lg" />
+          <img [src]="clientLogo()" [alt]="clientName()" width="40" height="40" class="" />
         }
         <div>
           <h1 class="text-xl font-bold text-gray-800 sm:text-2xl dark:text-gray-100">Unidades — {{ clientName() }}</h1>

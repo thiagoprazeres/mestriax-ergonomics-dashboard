@@ -20,7 +20,7 @@ import type { ColDef } from 'ag-grid-community';
     <div class="mb-6 flex items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         @if (ctx.clientLogo()) {
-          <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded-lg" />
+          <img [src]="ctx.clientLogo()" [alt]="ctx.clientName()" width="40" height="40" class="rounded" />
         }
         <div>
           <h1 class="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Saúde Ocupacional</h1>

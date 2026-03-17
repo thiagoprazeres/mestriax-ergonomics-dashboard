@@ -15,7 +15,7 @@ import { COMPANY } from '../../shared/models/user.model';
       <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
         <div class="mb-8 flex flex-col items-center gap-3">
           <img ngSrc="mestriax.png" alt="Mestriax" width="80" height="80" priority class="rounded-full" />
-          <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ company.name }}</h1>
+          <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ company.name }}</h1>
           <p class="text-center text-sm text-gray-400 dark:text-gray-500">{{ company.slogan }}</p>
         </div>
         <form (ngSubmit)="onLogin()" class="flex flex-col gap-4">
